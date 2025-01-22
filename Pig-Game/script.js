@@ -3,22 +3,24 @@
 // Selecting elements
 const player0El = document.querySelector('.player--0');
 const player1El = document.querySelector('.player--1');
-const score0El = document.querySelector('#score--0');
-// getElementById is faster than querySelector
-//And in this we dont need . and # for class and id
+const score0El = document.getElementById('score--0');
 const score1El = document.getElementById('score--1');
 const current0El = document.getElementById('current--0');
 const current1El = document.getElementById('current--1');
-
+const name0El = document.getElementById('name--0');
+const name1El = document.getElementById('name--1');
 const diceEl = document.querySelector('.dice');
 const btnNew = document.querySelector('.btn--new');
 const btnRoll = document.querySelector('.btn--roll');
 const btnHold = document.querySelector('.btn--hold');
-
-let scores, currentScore, activePlayer, playing;
+const winnerMessageEl = document.getElementById('winner-message');
+const winnerTextEl = document.getElementById('winner-text');
+const btnClose = document.querySelector('.btn--close');
 
 // Starting conditions
-const init = function () {
+let scores, currentScore, activePlayer, playing;
+
+const init = () => {
   scores = [0, 0];
   currentScore = 0;
   activePlayer = 0;
@@ -29,26 +31,32 @@ const init = function () {
   current0El.textContent = 0;
   current1El.textContent = 0;
 
-  diceEl.classList.add('hidden');
+  name0El.textContent = 'Player 1';
+  name1El.textContent = 'Player 2';
+
   player0El.classList.remove('player--winner');
   player1El.classList.remove('player--winner');
   player0El.classList.add('player--active');
   player1El.classList.remove('player--active');
+
+  diceEl.classList.add('hidden');
+  winnerMessageEl.classList.add('hidden'); // Hide the winner message
 };
+
 init();
 
-const switchPlayer = function () {
-  document.getElementById(`current--${activePlayer}`).textContent = 0;
+const switchPlayer = () => {
   currentScore = 0;
+  document.getElementById(`current--${activePlayer}`).textContent = currentScore;
   activePlayer = activePlayer === 0 ? 1 : 0;
   player0El.classList.toggle('player--active');
   player1El.classList.toggle('player--active');
 };
 
 // Rolling dice functionality
-btnRoll.addEventListener('click', function () {
+btnRoll.addEventListener('click', () => {
   if (playing) {
-    // 1. Generating a random dice roll
+    // 1. Generate a random dice roll
     const dice = Math.trunc(Math.random() * 6) + 1;
 
     // 2. Display dice
@@ -59,9 +67,7 @@ btnRoll.addEventListener('click', function () {
     if (dice !== 1) {
       // Add dice to current score
       currentScore += dice;
-      document.getElementById(
-        `current--${activePlayer}`
-      ).textContent = currentScore;
+      document.getElementById(`current--${activePlayer}`).textContent = currentScore;
     } else {
       // Switch to next player
       switchPlayer();
@@ -69,27 +75,24 @@ btnRoll.addEventListener('click', function () {
   }
 });
 
-btnHold.addEventListener('click', function () {
+btnHold.addEventListener('click', () => {
   if (playing) {
     // 1. Add current score to active player's score
     scores[activePlayer] += currentScore;
-    // scores[1] = scores[1] + currentScore
-
-    document.getElementById(`score--${activePlayer}`).textContent =
-      scores[activePlayer];
+    document.getElementById(`score--${activePlayer}`).textContent = scores[activePlayer];
 
     // 2. Check if player's score is >= 100
-    if (scores[activePlayer] >= 100) {
+    if (scores[activePlayer] >= 10) {
       // Finish the game
       playing = false;
       diceEl.classList.add('hidden');
 
-      document
-        .querySelector(`.player--${activePlayer}`)
-        .classList.add('player--winner');
-      document
-        .querySelector(`.player--${activePlayer}`)
-        .classList.remove('player--active');
+      document.querySelector(`.player--${activePlayer}`).classList.add('player--winner');
+      document.querySelector(`.player--${activePlayer}`).classList.remove('player--active');
+
+      // Display winner message
+      winnerTextEl.textContent = `Player ${activePlayer + 1} Wins! 🎉🥳`;
+      winnerMessageEl.classList.remove('hidden');
     } else {
       // Switch to the next player
       switchPlayer();
@@ -97,4 +100,10 @@ btnHold.addEventListener('click', function () {
   }
 });
 
+// Close winner message
+btnClose.addEventListener('click', () => {
+  winnerMessageEl.classList.add('hidden');
+});
+
+// Reset game functionality
 btnNew.addEventListener('click', init);
